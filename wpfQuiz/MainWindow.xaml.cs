@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
@@ -21,78 +22,183 @@ namespace wpfQuiz
     /// </summary>
     public partial class MainWindow : Window
     {
+        string? word;
+        string? question;
+        string[]? answer;
+        TextBox[] allTextBox;
+        Button[] blockBtn;
+        List<Issue> issues = new List<Issue>();
         public MainWindow()
         {
             InitializeComponent();
+            
+            Issue i = new Issue("Программа помогающая писать на разных языка?", "TRANSLATER");
+            i.Number = 0;
+            Issue t = new Issue("Столица России", "MOSCOW");
+            t.Number = 1;
+            Issue e = new Issue("Столица Франции", "LONDON");
+            e.Number = 2;
+            Issue r = new Issue("Столица Америки", "WASHINGTON");
+            r.Number = 3;
+            issues.Add(i);
+            issues.Add(t);
+            issues.Add(e);
+            issues.Add(r);
+            CreateIssue();
+        }
+
+        private void CreateIssue()
+        {
+            Random rnd = new Random();
+            int num = rnd.Next(0,3);
+            for(int i = 0; i < 4; i++)
+            {
+                if (i == num)
+                {
+                    word = issues.Find(x => x.Number == num).Answer;
+                    question = issues.Find(x => x.Number == num).Question;
+                }
+                   
+            }
+            answer = new string[word.Length];
+            blockBtn = new Button[30];
+            allTextBox = new TextBox[word.Length];
             CreateBoard();
             CreateButton();
         }
 
         private void CreateBoard()
         {
-            WrapPanel sp = new();
-            sp.Orientation = Orientation.Horizontal;
-            sp.HorizontalAlignment = HorizontalAlignment.Center;
-            for (int i = 0; i < 20; i++)
+            Label lb = new Label();
+            lb.Content = question;
+            Board.Children.Add(lb);
+            Grid.SetRow(lb, 0);
+            Grid.SetColumn(lb, 2);
+            WrapPanel wp = new();
+            wp.Orientation = Orientation.Horizontal;
+            wp.HorizontalAlignment = HorizontalAlignment.Center;
+            for (int i = 0; i < word.Length; i++)
             {
                 TextBox textBox = new();
-                textBox.Name = "tb" + $"{i}";
-                //textBox.Text = i.ToString();
-                textBox.FontSize = 35;
+                textBox.FontSize = 30;
                 textBox.TextAlignment = TextAlignment.Center;
-                textBox.Width = 50;
-                textBox.Height = 50;
+                textBox.Width = 45;
+                textBox.Height = 45;
                 textBox.IsReadOnly = true;
-                sp.Children.Add(textBox);
-                
+                if (i == word.Length-1)
+                    textBox.Tag = "last";
+                allTextBox[i] = textBox;
+                wp.Children.Add(textBox);
             }
-            Board.Children.Add(sp);
-            Grid.SetRow(sp, 1);
-            Grid.SetColumn(sp, 1);
+            Board.Children.Add(wp);
+            Grid.SetRow(wp, 1);
+            Grid.SetColumn(wp, 2);
         }
 
         private void CreateButton()
         {
             Random rnd = new Random();
-            WrapPanel sp = new();
-            sp.Orientation = Orientation.Horizontal;
-            sp.HorizontalAlignment = HorizontalAlignment.Center;
+            WrapPanel wp = new();
+            wp.Orientation = Orientation.Horizontal;
+            wp.HorizontalAlignment = HorizontalAlignment.Center;
+            Button[] btnArray = new Button[30];
             for (int i = 0; i < 30; i++)
             {
-                Button button = new Button();
-                char a = Convert.ToChar(rnd.Next(65, 90));
-                button.Content = a;
+                Button button = new Button()
+                {
+                    Margin = new Thickness(0, 0, 5, 5)
+                };
                 button.Height = 45;
                 button.Width = 45;
                 button.FontSize = 30;
                 button.AddHandler(Button.ClickEvent, new RoutedEventHandler(Button_Click));
-                //button.Click += new RoutedEventHandler(Button_Click);
-                sp.Children.Add(button);
-                
+                if (i < word.Length) 
+                    button.Content = word[i];
+                else 
+                    button.Content = Convert.ToChar(rnd.Next(65, 90));
+                btnArray[i] = button;
             }
-            Board.Children.Add(sp);
-            Grid.SetRow(sp, 2);
-            Grid.SetColumn(sp, 1);
+            BtnArrayShuffle(ref btnArray, wp);
+            Board.Children.Add(wp);
+            Grid.SetRow(wp, 2);
+            Grid.SetColumn(wp, 2);
+        }
+
+        private void BtnArrayShuffle(ref Button[] data, WrapPanel wp)
+        { 
+            Random rnd = new Random();
+            for (int i = data.Length -1; i >= 0; i--)
+            {
+                int j = rnd.Next(i + 1);
+                var temp = data[j];
+                data[j] = data[i];
+                data[i] = temp;
+                wp.Children.Add(data[i]);
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var currentButton = (sender as Button);
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Board); i++)
+            for(int i = 0; i < allTextBox.Length; i++)
             {
-                Visual childVisual = (Visual)VisualTreeHelper.GetChild(Board, i);
-                if (childVisual is StackPanel)
+                if (allTextBox[i].Text == string.Empty)
                 {
-                    for (int j = 0; j < VisualTreeHelper.GetChildrenCount(childVisual); j++)
+                    allTextBox[i].Text = currentButton.Content.ToString();
+                    answer[i] = currentButton.Content.ToString();
+                    currentButton.IsEnabled = false;
+                    blockBtn[i] = currentButton;
+                    break;
+                }
+            }
+        }
+
+        private void btnСlear_Click(object sender, RoutedEventArgs e)
+        {
+            for(int i = allTextBox.Length - 1; i >= 0; i--)
+            {
+                if (allTextBox[i].Text != string.Empty)
+                {
+                    allTextBox[i].Text = string.Empty;
+                    answer[i] = string.Empty;
+                    blockBtn[i].IsEnabled = true;
+                    blockBtn[i] = null;
+                    break;
+                }
+            }
+        }
+
+        private void btnCheck_Click(object sender, RoutedEventArgs e)
+        {
+            if (allTextBox[allTextBox.Length-1].Text != string.Empty)
+            {
+                string result = string.Empty;
+                foreach(var i in answer)
+                {
+                    result += i;
+                }
+                if(result == word)
+                {
+                    MessageBox.Show("Молодец!");
+                    for (int i = allTextBox.Length - 1; i >= 0; i--)
                     {
-                        Visual childStackVisual = (Visual)VisualTreeHelper.GetChild(childVisual, j);
-                        if (childStackVisual is TextBox && (childStackVisual as TextBox).Text == "")
-                        {
-                            (childStackVisual as TextBox).Text = currentButton.Content.ToString();
-                            break;
-                        }
+                        allTextBox[i].Text = string.Empty;
+                        //if (blockBtn != null)
+                            blockBtn[i].IsEnabled = true;
+                        blockBtn[i] = null;
                     }
                 }
+                else
+                {
+                    MessageBox.Show("Попробуй ещё раз!");
+                    for (int i = allTextBox.Length - 1; i >= 0; i--)
+                    {
+                        allTextBox[i].Text = string.Empty;
+                        blockBtn[i].IsEnabled = true;
+                        blockBtn[i] = null;
+                    }
+                }
+                CreateIssue();
             }
         }
     }

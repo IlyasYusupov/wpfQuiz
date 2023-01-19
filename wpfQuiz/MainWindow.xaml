@@ -8,16 +8,20 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid RenderTransformOrigin="0.502,0.443" Name="Board">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="600"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="51*"/>
+            <ColumnDefinition Width="55*"/>
+            <ColumnDefinition Width="545.994"/>
+            <ColumnDefinition Width="91*"/>
+            <ColumnDefinition Width="51*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="180"/>
+            <RowDefinition Height="80*"/>
+            <RowDefinition Height="118.04"/>
             <RowDefinition Height="220"/>
-            <RowDefinition/>
+            <RowDefinition Height="17*"/>
         </Grid.RowDefinitions>
-        
+        <Button Grid.Column="3" Name="btnСlear" Content="Сlear" HorizontalAlignment="Left" Margin="10,118,0,0" Grid.Row="1" VerticalAlignment="Top" Width="65" Height="45" Click="btnСlear_Click" FontSize="20" Grid.RowSpan="2" />
+        <Button Grid.Column="3" Name="btnCheck" Content="Check" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Top"  Width="65" Height="45" Click="btnCheck_Click" FontSize="20"/>
+
     </Grid>
 </Window>
