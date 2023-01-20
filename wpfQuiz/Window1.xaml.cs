@@ -33,7 +33,7 @@ namespace wpfQuiz
             }
             else
             {
-                Issue issue = new Issue(tbQuestion.Text, tbAnswer.Text);
+                Issue issue = new Issue(tbQuestion.Text, tbAnswer.Text.ToUpper());
                 tbQuestion.Text = string.Empty;
                 tbAnswer.Text = string.Empty;   
                 Mongo.AddToDB(issue);
