@@ -25,10 +25,7 @@ namespace wpfQuiz
         ObjectId _id;
 
         [BsonIgnoreIfNull]
-
-        public int Number { get; set; }
-
-        public string? Question { get => question; }
+        public string? Question { get => question; set => question = value; }
 
         [BsonIgnoreIfNull]
         public string? Answer { get => answer; set => answer = value; }
