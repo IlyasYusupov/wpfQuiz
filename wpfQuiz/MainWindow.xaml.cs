@@ -15,17 +15,18 @@ namespace wpfQuiz
         string[]? answer;
         TextBox[] allTextBox;
         Button[] blockBtn;
+        int Live = 3;
         List<Issue> issues = new List<Issue>();
         public MainWindow()
         {
             InitializeComponent();
+            Mongo.FindAll(issues);
             CreateIssue();
         }
 
         private void CreateIssue()
         {
             Random rnd = new Random();
-            Mongo.FindAll(issues);
             if (issues.Count == 0 ) 
             {
                 MessageBox.Show("Нет вопросов! Добавьте хотя бы 1");
@@ -40,11 +41,12 @@ namespace wpfQuiz
                 {
                     question = issues[i].Question;
                     word = issues[i].Answer;
+                    issues.Remove(issues[i]);
                     break;
                 }
             }
             answer = new string[word.Length];
-            blockBtn = new Button[30];
+            blockBtn = new Button[40];
             allTextBox = new TextBox[word.Length];
             CreateBoard();
             CreateButton();
@@ -74,8 +76,8 @@ namespace wpfQuiz
         private void CreateButton()
         {
             Random rnd = new Random();
-            Button[] btnArray = new Button[30];
-            for (int i = 0; i < 30; i++)
+            Button[] btnArray = new Button[40];
+            for (int i = 0; i < 40; i++)
             {
                 Button button = new Button()
                 {
@@ -88,7 +90,7 @@ namespace wpfQuiz
                 if (i < word.Length)
                     button.Content = word[i];
                 else
-                    button.Content = Convert.ToChar(rnd.Next(1042, 1072));
+                    button.Content = Convert.ToChar(rnd.Next(1040, 1072));
                 btnArray[i] = button;
             }
             BtnArrayShuffle(ref btnArray);
@@ -158,7 +160,14 @@ namespace wpfQuiz
                 }
                 else
                 {
-                    MessageBox.Show("Попробуй ещё раз!");
+                    if(Live <= 0)
+                    {
+                        MessageBox.Show("Ты Проиграл!");
+                        wpKeyboard.Visibility = Visibility.Hidden;
+                        return;
+                    }
+                    Live--;
+                    MessageBox.Show($"Попробуй ещё раз! Осталось жизней: {Live} ");
                     ClearForms();
                     return;
                 }
